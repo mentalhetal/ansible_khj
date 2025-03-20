@@ -1,0 +1,12 @@
+---
+- name: with items 예시
+  hosts: web
+  tasks:
+    - name: 여러 패키지 설치
+      apt:
+        name: "{{ item }}"
+        state: present
+      with_items:
+        - nginx
+        - curl
+        - git

@@ -1,0 +1,14 @@
+---
+- name: Install and configure MariaDB
+  hosts: db   # 이 부분은 대상 서버 그룹을 나타냅니다.
+  become: yes         # 루트 권한으로 실행
+  roles:
+    - geerlingguy.mysql  # MariaDB 역할
+  vars:
+    mysql_root_password: ""  # 루트 비밀번호
+    mysql_users:
+      - name: "user1"
+        password: "Test123"
+        priv: "*.*:ALL"
+    mysql_databases:
+      - name: "Maria_database"

@@ -1,0 +1,12 @@
+---
+- name: loop 예시
+  hosts: web
+  tasks:
+    - name: 여러 패키지 설치
+      apt:
+        name: "{{ item }}"
+        state: present
+      loop:
+        - nginx
+        - curl
+        - git
