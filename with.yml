@@ -1,0 +1,15 @@
+---
+- name: Run tasks with items and conditions
+  hosts: u22b
+  vars:
+    users:
+      - name: alice
+        status: active
+      - name: bob
+        status: inactive
+  tasks:
+    - name: Ensure active users are processed
+      debug:
+        msg: "processed user: {{ item.name }}"
+      when: item.status == 'active'
+      with_items: "{{ users }}"

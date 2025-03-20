@@ -1,0 +1,11 @@
+---
+- name: Run task if both conditions are true
+  hosts: u22b
+  vars:
+    user_logged_in: true
+    db_connected: true
+  tasks:
+    - name: Perform action if both conditions are met
+      debug:
+        msg: "Both conditions are true"
+      when: user_logged_in == true and db_connected == true

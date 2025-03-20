@@ -1,0 +1,12 @@
+---
+- name: 조건문 예시 - length 사용
+  hosts: u22b
+  vars:
+    packages:
+      - git
+      - curl
+  tasks:
+    - name: 패키지 목록에 3개 이상의 패키지가 있을 경우
+      debug:
+        msg: "패키지가 3개 이상입니다!"
+      when: packages | length >= 3   # 패키지 목록의 길이가 3 이상일 경우
