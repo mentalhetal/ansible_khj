@@ -1,0 +1,35 @@
+---
+- name: 우분투에서 Samba 서버에 마운트
+  hosts: db
+  become: yes
+  tasks:
+    - name: cifs-utils 패키지 설치
+      apt:
+        name: cifs-utils
+        state: present
+        update_cache: yes
+
+    - name: 마운트할 디렉토리 생성
+      file:
+        path: /dir2
+        state: directory
+        mode: '0755'
+
+    - name: Samba 서버 공유 마운트
+      mount:
+        path: /dir2
+        src: //192.168.20.1/humans  # UNC 경로 형식으로 수정
+        fstype: cifs
+        opts: "username=user1,password=Test123,vers=2.1"
+        state: mounted
+        dump: 0
+        passno: 0
+
+    - name: Samba 공유 마운트 정보 확인
+      shell: mount | grep /dir2
+      register: mount_status
+      changed_when: False
+
+    - name: 마운트 상태 출력
+      debug:
+        msg: "마운트된 Samba 공유: {{ mount_status.stdout }}"

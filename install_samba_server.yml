@@ -1,0 +1,70 @@
+---
+- name: Install Samba Server and Configure Samba User
+  hosts: web
+  become: yes
+  vars_prompt:
+    - name: "smb_password"
+      prompt: "Please enter the password for the Samba user"
+      private: yes  # 비밀번호를 숨김 처리
+
+  tasks:
+    - name: Install Samba packages
+      apt:
+        name:
+          - samba
+          - samba-common
+          - smbclient
+        state: present
+        update_cache: yes
+
+    - name: Ensure Samba service is started and enabled
+      service:
+        name: smbd
+        state: started
+        enabled: yes
+
+    - name: Create Samba user (smbuser)
+      user:
+        name: user1
+        password: "{{ smb_password | password_hash('sha512') }}"
+        state: present
+
+    - name: Add Samba user to Samba database
+      expect:
+        command: smbpasswd -a user1
+        responses:
+          'New SMB password:': "{{ smb_password }}"
+          'Retype new SMB password:': "{{ smb_password }}"
+      args:
+        creates: /etc/samba/smbpasswd
+
+    - name: Enable Samba user (smbuser)
+      command: smbpasswd -e user1
+
+    - name: Configure Samba share in smb.conf
+      blockinfile:
+        path: /etc/samba/smb.conf
+        marker: "# {ansible_managed} #"
+        block: |
+          [humans]
+          path = /humans
+          browseable = yes
+          read only = no
+          guest ok = no
+          valid users = user1
+
+    - name: Create shared directory for Samba
+      file:
+        path: /humans
+        state: directory
+        owner: root
+        group: sambashare
+        mode: '0775'
+
+    - name: Set correct permissions for Samba shared directory
+      file:
+        path: /humans
+        recurse: yes
+        owner: user1
+        group: sambashare
+        mode: '0775'
