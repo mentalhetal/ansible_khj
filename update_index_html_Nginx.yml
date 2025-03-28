@@ -1,0 +1,23 @@
+- name: Update index.html file with Nginx
+  hosts: aws_ec2
+  become: yes
+  tasks:
+    - name: Modify index.html with new content
+      copy:
+        content: |
+          <!DOCTYPE html>
+          <html>
+          <head>
+              <title>Updated Page</title>
+          </head>
+          <body>
+              <h1>Hello</h1>
+          </body>
+          </html>
+        dest: "/var/www/html/index.html"  # 대상 파일 경로 (필수)
+        mode: '0644'
+
+    - name: Restart Nginx to apply changes
+      systemd:
+        name: nginx
+        state: restarted
